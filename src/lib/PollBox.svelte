@@ -1,6 +1,12 @@
 <script>
+  import { createEventDispatcher } from 'svelte'
+  import { tweened } from 'svelte/motion'
+  import { cubicOut } from 'svelte/easing'
+  import Button from './components/Button.svelte'
   import Card from './components/Card.svelte'
   export let poll
+
+  const dispatch = createEventDispatcher()
 
   // reactive values
   $: totalVotes = poll.votesA + poll.votesB
@@ -17,6 +23,19 @@
 
   $: lengthA = percent(poll.votesA)
   $: lengthB = percent(poll.votesB)
+
+  // tweens
+  const tweenedA = tweened(0, {
+    duration: 300,
+    easing: cubicOut,
+  })
+  const tweenedB = tweened(0, {
+    duration: 300,
+    easing: cubicOut,
+  })
+
+  $: tweenedA.set(lengthA)
+  $: tweenedB.set(lengthB)
 </script>
 
 <Card>
@@ -29,7 +48,7 @@
         poll.votesA++
       }}
     >
-      <div class="percent percent-a" style="--percent: {lengthA}" />
+      <div class="percent percent-a" style="--percent: {$tweenedA}" />
       <span>{poll.answerA} ({poll.votesA})</span>
     </div>
     <div
@@ -38,10 +57,16 @@
         poll.votesB++
       }}
     >
-      <div class="percent percent-b" style="--percent: {lengthB}" />
+      <div class="percent percent-b" style="--percent: {$tweenedB}" />
       <span>{poll.answerB} ({poll.votesB})</span>
     </div>
   </div>
+  <Button
+    bgColor="var(--clr-primary)"
+    on:click={() => {
+      dispatch('delete')
+    }}>Delete</Button
+  >
 </Card>
 
 <style>
@@ -93,6 +118,7 @@
     transform-origin: 0 50%;
     transform: scaleX(var(--percent));
     opacity: 0.75;
+    /* transition: transform 300ms ease-in-out; */
   }
 
   .percent-a {

@@ -2,7 +2,7 @@
   export let bgColor = 'var(--clr-secondary)'
 </script>
 
-<button style="--btn-clr: {bgColor};">
+<button on:click style="--btn-clr: {bgColor};">
   <slot />
 </button>
 
